@@ -1,0 +1,15 @@
+[submodule "third_party/bunsan_cmake"]
+	path = third_party/bunsan_cmake
+	url = git://github.com/bunsanorg/bunsan_cmake.git
+[submodule "third_party/bunsan_testing"]
+	path = third_party/bunsan_testing
+	url = git://github.com/bunsanorg/bunsan_testing.git
+[submodule "third_party/bunsan_common"]
+	path = third_party/bunsan_common
+	url = git://github.com/bunsanorg/bunsan_common.git
+[submodule "third_party/bunsan_protobuf"]
+	path = third_party/bunsan_protobuf
+	url = git://github.com/bunsanorg/bunsan_protobuf.git
+[submodule "third_party/bunsan_web"]
+	path = third_party/bunsan_web
+	url = git://github.com/bunsanorg/bunsan_web.git
