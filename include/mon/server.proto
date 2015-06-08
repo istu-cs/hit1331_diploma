@@ -31,10 +31,15 @@ message CheckResponse {
     string message = 3;
 }
 
+message Query {
+    Plugin plugin = 1;
+    uint32 interval = 2;  // interval in ms
+}
+
 message AgentConfiguration {
     string id = 1;
     Connection connection = 2;
-    repeated Plugin plugin = 3;
+    repeated Query query = 3;
 }
 
 service Agent {
