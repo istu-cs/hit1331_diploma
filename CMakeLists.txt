@@ -26,17 +26,24 @@ bunsan_add_protobuf_cxx_library(
     INSTALL
 )
 
-#bunsan_add_library(${PROJECT_NAME}
-#)
-#bunsan_use_target(${PROJECT_NAME} ${PROJECT_NAME}_pb)
-#bunsan_use_bunsan_package(${PROJECT_NAME} bunsan_protobuf bunsan_protobuf)
+bunsan_add_library(${PROJECT_NAME}
+    src/lib/stub.cpp
+)
+bunsan_use_target(${PROJECT_NAME} ${PROJECT_NAME}_pb)
+bunsan_use_bunsan_package(${PROJECT_NAME} bunsan_protobuf bunsan_protobuf)
 
-#bunsan_add_executable(${PROJECT_NAME}_cli
-#)
-#bunsan_use_target(${PROJECT_NAME}_cli ${PROJECT_NAME})
+bunsan_add_executable(${PROJECT_NAME}_server
+    src/bin/server.cpp
+)
+bunsan_use_target(${PROJECT_NAME}_server ${PROJECT_NAME})
+
+bunsan_add_executable(${PROJECT_NAME}_agent
+    src/bin/agent.cpp
+)
+bunsan_use_target(${PROJECT_NAME}_agent ${PROJECT_NAME})
 
 bunsan_install_headers()
-#bunsan_install_targets(${PROJECT_NAME})
+bunsan_install_targets(${PROJECT_NAME} ${PROJECT_NAME}_agent)
 bunsan_install_project()
 
 bunsan_include_tests()
