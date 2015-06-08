@@ -21,6 +21,7 @@ bunsan_add_protobuf_cxx_library(
     PROTOS
         mon/server.proto
     LIBRARIES ${bunsan_common_LIBRARIES}
+    PLUGINS grpc=/usr/bin/grpc_cpp_plugin # FIXME
     INCLUDE_DIRECTORIES ${bunsan_common_INCLUDE_DIRS}
     INSTALL
 )

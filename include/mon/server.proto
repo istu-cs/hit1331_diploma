@@ -12,12 +12,12 @@ message Plugin {
     repeated string argument = 2;
 }
 
-message Request {
+message CheckRequest {
     string agent = 1;
     Plugin plugin = 2;
 }
 
-message Response {
+message CheckResponse {
     enum Status {
         OK = 0;
         WARNING = 1;
@@ -26,13 +26,17 @@ message Response {
         TIMEOUT = 100;
     }
 
-    Request request = 1;
+    CheckRequest request = 1;
     Status status = 2;
     string message = 3;
 }
 
-message Agent {
+message AgentConfiguration {
     string id = 1;
     Connection connection = 2;
     repeated Plugin plugin = 3;
+}
+
+service Agent {
+    rpc Check (CheckRequest) returns (CheckResponse) {}
 }
