@@ -3,8 +3,7 @@ syntax = "proto3";
 package mon;
 
 message Connection {
-    string host = 1;
-    uint32 port = 2;
+    string target = 1;
 }
 
 message Plugin {
