@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package mon;
+
+message Connection {
+    string host = 1;
+    uint32 port = 2;
+}
+
+message Plugin {
+    string id = 1;
+    repeated string argument = 2;
+}
+
+message Request {
+    string agent = 1;
+    Plugin plugin = 2;
+}
+
+message Response {
+    enum Status {
+        OK = 0;
+        WARNING = 1;
+        CRITICAL = 2;
+        UNKNOWN = 3;
+        TIMEOUT = 100;
+    }
+
+    Request request = 1;
+    Status status = 2;
+    string message = 3;
+}
+
+message Agent {
+    string id = 1;
+    Connection connection = 2;
+    repeated Plugin plugin = 3;
+}
