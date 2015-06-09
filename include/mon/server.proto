@@ -35,14 +35,14 @@ message CheckResponse {
 }
 
 message Query {
-    Plugin plugin = 1;
-    uint64 interval = 2;  // interval in ms
+    string id = 1;
+    CheckRequest request = 2;
+    uint64 interval = 3;
 }
 
 message AgentConfiguration {
     string id = 1;
     Connection connection = 2;
-    repeated Query query = 3;
 }
 
 service Agent {

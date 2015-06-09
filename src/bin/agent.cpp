@@ -27,7 +27,7 @@ namespace
             );
         }
 
-        int main(const variables_map &variables) override
+        int main(const variables_map &/*variables*/) override
         {
             mon::agent_service agent;
             grpc::ServerBuilder builder;

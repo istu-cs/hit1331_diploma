@@ -1,14 +1,16 @@
 #pragma once
 
 #include <mon/server.pb.h>
+#include <mon/server.grpc.pb.h>
 
 #include <grpc++/channel_interface.h>
 
 #include <boost/asio/io_service.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/signals2/signal.hpp>
 
-#include <mutex>
+#include <memory>
 #include <unordered_map>
 
 namespace mon {
@@ -16,12 +18,19 @@ namespace mon {
 class poller : private boost::noncopyable {
 public:
     using connection = boost::signals2::connection;
-    using check_response_signal = boost::signals2::signal<void (const CheckResponse &)>;
+    using check_response_signal = boost::signals2::signal<void(const CheckResponse &)>;
 
     explicit poller(boost::asio::io_service &io_service);
+    ~poller();
 
-    void poll(const AgentConfiguration &agent);
-    void remove_poll(const AgentConfiguration &agent);
+    void close();
+
+    void add_agent(const AgentConfiguration &agent);
+    void remove_agent(const std::string &agent_id);
+
+    void add_query(const Query &query);
+    void remove_query(const std::string query_id);
+
     connection on_check(const check_response_signal::slot_type &slot) {
         return m_check_response_signal.connect(slot);
     }
@@ -30,14 +39,28 @@ public:
     }
 
 private:
-    void post_listen();
-    void listen();
+    struct agent {
+        AgentConfiguration configuration;
+        std::shared_ptr<grpc::ChannelInterface> channel;
+        std::unique_ptr<Agent::Stub> stub;
+    };
+
+    struct query {
+        Query configuration;
+        std::chrono::system_clock::time_point next_call;
+        std::shared_ptr<agent> agent_ref;
+    };
+
+    void work();
+    void perform_query(const query &q);
 
     boost::asio::io_service &m_io_service;
     check_response_signal m_check_response_signal;
-    std::mutex m_lock;
-    std::unordered_map<std::string, std::shared_ptr<grpc::ChannelInterface>> m_channels;
-    grpc::CompletionQueue m_queue;
+    boost::asio::io_service::strand m_agent_worker;
+    boost::asio::io_service::strand m_query_worker;
+    bool m_alive = true;
+    std::unordered_map<std::string, std::shared_ptr<agent>> m_agents;
+    std::unordered_map<std::string, query> m_queries;
 };
 
 }  // namespace mon
