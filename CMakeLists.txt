@@ -26,16 +26,14 @@ bunsan_add_protobuf_cxx_library(
     INSTALL
 )
 
-bunsan_add_library(${PROJECT_NAME}
-    src/lib/poller.cpp
-)
-bunsan_use_target(${PROJECT_NAME} ${PROJECT_NAME}_pb)
-bunsan_use_bunsan_package(${PROJECT_NAME} bunsan_protobuf bunsan_protobuf)
 
 bunsan_add_executable(${PROJECT_NAME}_server
+    src/lib/poller.cpp
     src/bin/server.cpp
 )
-bunsan_use_target(${PROJECT_NAME}_server ${PROJECT_NAME})
+bunsan_use_target(${PROJECT_NAME}_server ${PROJECT_NAME}_pb)
+bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_web bunsan_web)
+bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_protobuf bunsan_protobuf)
 
 bunsan_add_executable(${PROJECT_NAME}_agent
     src/lib/agent.cpp
@@ -45,7 +43,7 @@ bunsan_use_target(${PROJECT_NAME}_agent ${PROJECT_NAME}_pb)
 bunsan_use_bunsan_package(${PROJECT_NAME}_agent bunsan_common bunsan_common)
 
 bunsan_install_headers()
-bunsan_install_targets(${PROJECT_NAME} ${PROJECT_NAME}_agent)
+bunsan_install_targets(${PROJECT_NAME}_server ${PROJECT_NAME}_agent)
 bunsan_install_project()
 
 bunsan_include_tests()
