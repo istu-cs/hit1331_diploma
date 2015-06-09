@@ -8,10 +8,14 @@
 
 namespace mon {
 
+namespace {
 struct check_context {
+    grpc::ClientContext rpc_context;
+    CheckRequest request;
     CheckResponse response;
     grpc::Status status;
 };
+}  // namespace
 
 poller::poller(boost::asio::io_service &io_service):
         m_io_service(io_service) {
@@ -26,6 +30,20 @@ void poller::listen() {
         std::unique_ptr<check_context> ctx(reinterpret_cast<check_context *>(tag));
         if (ctx->status.IsOk()) {
             const CheckResponse response = ctx->response;
+            m_io_service.dispatch([this, response] {
+                m_check_response_signal(response);
+            });
+        } else {
+            CheckResponse response;
+            *response.mutable_request() = ctx->request;
+            switch (ctx->status.code()) {
+            case grpc::DEADLINE_EXCEEDED:
+                response.set_status(CheckResponse::RPC_TIMEOUT);
+                break;
+            default:
+                response.set_status(CheckResponse::RPC_ERROR);
+            }
+            response.set_message(ctx->status.details());
             m_io_service.dispatch([this, response] {
                 m_check_response_signal(response);
             });
@@ -59,21 +77,23 @@ void poller::poll(const AgentConfiguration &agent) {
             if (iter == m_channels.end()) {
                 m_io_service.dispatch([this] {
                     CheckResponse response;
-                    response.set_status(CheckResponse::CANCELLED);
+                    response.set_status(CheckResponse::USER_CANCELLED);
                     m_check_response_signal(response);
                 });
             } else {
                 std::shared_ptr<grpc::ChannelInterface> channel = iter->second;
                 m_io_service.dispatch([this, agent_id, channel, plugin] {
-                    CheckRequest request;
-                    request.set_agent(agent_id);
-                    *request.mutable_plugin() = plugin;
-                    grpc::ClientContext context;
+                    auto ctx = std::make_unique<check_context>();
+                    ctx->request.set_agent(agent_id);
+                    *ctx->request.mutable_plugin() = plugin;
+                    ctx->rpc_context.set_deadline(
+                        // FIXME hardcoded timeout
+                        std::chrono::system_clock::now() + std::chrono::minutes(5)
+                    );
                     std::unique_ptr<Agent::Stub> stub(Agent::NewStub(channel));
                     std::unique_ptr<grpc::ClientAsyncResponseReader<CheckResponse>> rpc(
-                        stub->AsyncCheck(&context, request, &m_queue)
+                        stub->AsyncCheck(&ctx->rpc_context, ctx->request, &m_queue)
                     );
-                    auto ctx = std::make_unique<check_context>();
                     auto ctx_ = ctx.release();
                     rpc->Finish(&ctx_->response, &ctx_->status, ctx_);
                 });

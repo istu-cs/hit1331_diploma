@@ -22,8 +22,11 @@ message CheckResponse {
         WARNING = 1;
         CRITICAL = 2;
         UNKNOWN = 3;
-        TIMEOUT = 100;
-        CANCELLED = 101;
+        // RPC errors
+        RPC_ERROR = 100;
+        RPC_TIMEOUT = 101;
+        // user errors
+        USER_CANCELLED = 200;
     }
 
     CheckRequest request = 1;
