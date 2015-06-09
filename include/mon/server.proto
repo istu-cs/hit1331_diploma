@@ -23,6 +23,7 @@ message CheckResponse {
         CRITICAL = 2;
         UNKNOWN = 3;
         TIMEOUT = 100;
+        CANCELLED = 101;
     }
 
     CheckRequest request = 1;
@@ -32,7 +33,7 @@ message CheckResponse {
 
 message Query {
     Plugin plugin = 1;
-    uint32 interval = 2;  // interval in ms
+    uint64 interval = 2;  // interval in ms
 }
 
 message AgentConfiguration {

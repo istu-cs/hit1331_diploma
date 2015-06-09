@@ -20,14 +20,14 @@ bunsan_add_protobuf_cxx_library(
     TARGET ${PROJECT_NAME}_pb
     PROTOS
         mon/server.proto
+    GRPC
     LIBRARIES ${bunsan_common_LIBRARIES}
-    PLUGINS grpc=/usr/bin/grpc_cpp_plugin # FIXME
     INCLUDE_DIRECTORIES ${bunsan_common_INCLUDE_DIRS}
     INSTALL
 )
 
 bunsan_add_library(${PROJECT_NAME}
-    src/lib/stub.cpp
+    src/lib/poller.cpp
 )
 bunsan_use_target(${PROJECT_NAME} ${PROJECT_NAME}_pb)
 bunsan_use_bunsan_package(${PROJECT_NAME} bunsan_protobuf bunsan_protobuf)
