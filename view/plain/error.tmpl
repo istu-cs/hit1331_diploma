@@ -1,0 +1,16 @@
+<% c++ #include "mon/web/content/error.hpp" %>
+<% skin plain %>
+    <% view error uses mon::web::content::error extends base %>
+        <% template subtitle() %>
+            Error
+        <% end template %>
+        <% template main() %>
+            <h3><%= brief %></h3>
+            <% if raw %>
+                <div><%= message | raw %></div>
+            <% else %>
+                <pre><%= message %></pre>
+            <% end %>
+        <% end template %>
+    <% end view %>
+<% end skin %>

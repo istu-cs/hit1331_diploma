@@ -1,0 +1,63 @@
+<% c++ #include "mon/web/content/base.hpp" %>
+<% skin plain %>
+    <% view base uses mon::web::content::base %>
+        <% template render() %>
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <% include scripts() %>
+                    <% include stylesheets() %>
+                    <title>
+                        <% include title() %>
+                    </title>
+                </head>
+                <body onload="body_onload();">
+                    <% include body() %>
+                </body>
+            </html>
+        <% end template %>
+        <% template scripts() %>
+            <script src="/static/jquery-2.1.4.min.js" type="text/javascript"></script>
+            <script src="/static/plain/menu_onload.js" type="text/javascript"></script>
+            <script>
+                function body_onload()
+                {
+                    <% include script_onload() %>
+                }
+            </script>
+            <script>
+                <% include script() %>
+            </script>
+        <% end template %>
+        <% template script() %>
+            <!-- Nothing here by default -->
+        <% end template %>
+        <% template script_onload() %>
+            menu_onload();
+        <% end template %>
+        <% template stylesheets() %>
+            <link href="/static/plain/base.css" rel="stylesheet" type="text/css">
+        <% end template %>
+        <% template title() %>
+            MON ::
+            <% include subtitle() %>
+        <% end template %>
+        <% template subtitle() %>
+            <!-- Nothing here by default -->
+        <% end template %>
+        <% template body() %>
+            <% include menu() %>
+            <% include main() %>
+        <% end template %>
+        <% template menu() %>
+            <ul class="menu">
+                <li><a href="<% url "/edit" %>"><% gt "edit" %></a></li>
+                <li><a href="<% url "/show" %>"><% gt "show" %></a></li>
+            </ul>
+            <br clear="all" />
+        <% end template %>
+        <% template main() %>
+            Hi, folks!
+        <% end template %>
+    <% end view %>
+<% end skin %>

@@ -1,0 +1,1 @@
+(function(a){a.fn.replaceTagName=function(e){var f=[],g=this.length;while(g--){var j=document.createElement(e),b=this[g],d=b.attributes;for(var c=d.length-1;c>=0;c--){var h=d[c];j.setAttribute(h.name,h.value)}j.innerHTML=b.innerHTML;a(b).after(j).remove();f[g-1]=j}return f}})(window.jQuery);

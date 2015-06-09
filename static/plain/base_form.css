@@ -1,0 +1,14 @@
+ul.problem_ids {
+    list-style: circle;
+}
+
+ul.problem_flags {
+  margin: 0;
+  padding: 0 0 0 15px;
+  list-style: none;
+}
+
+span.action {
+    text-decoration: underline;
+    cursor: pointer;
+}

@@ -1,0 +1,17 @@
+<% c++ #include "mon/web/content/edit.hpp" %>
+<% skin plain %>
+    <% view edit uses mon::web::content::edit extends base_form %>
+        <% template subtitle() %>
+            <% gt "edit" %>
+        <% end template %>
+        <% template form() %>
+            <h3><% gt "Edit" %></h3>
+            <form method="post" action="">
+                <!--% form as_p form %-->
+            </form>
+        <% end template %>
+        <% template result() %>
+            TODO
+        <% end template %>
+    <% end view %>
+<% end skin %>
