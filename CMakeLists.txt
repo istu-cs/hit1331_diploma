@@ -28,6 +28,7 @@ bunsan_add_protobuf_cxx_library(
 
 bunsan_add_library(${PROJECT_NAME}
     src/lib/poller.cpp
+    src/web/monitor.cpp
 )
 bunsan_use_target(${PROJECT_NAME} ${PROJECT_NAME}_pb)
 
@@ -37,6 +38,7 @@ bunsan_add_executable(${PROJECT_NAME}_server
 bunsan_use_target(${PROJECT_NAME}_server ${PROJECT_NAME})
 bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_web bunsan_web)
 bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_protobuf bunsan_protobuf)
+target_link_libraries(${PROJECT_NAME}_server PUBLIC cppcms booster)
 
 if(BunsanWebBuiltin)
     BunsanWebLoad()

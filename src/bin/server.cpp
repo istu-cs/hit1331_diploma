@@ -1,32 +1,44 @@
 #include <mon/poller.hpp>
+#include <mon/web/monitor.hpp>
 
-#include <bunsan/application.hpp>
-#include <bunsan/logging/trivial.hpp>
+#include <cppcms/applications_pool.h>
+#include <cppcms/service.h>
 
-using namespace bunsan::application;
+#include <boost/asio/io_service.hpp>
+#include <boost/property_tree/info_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/thread.hpp>
 
-namespace
+#include <iostream>
+#include <functional>
+#include <memory>
+
+#include <cstdlib>
+
+int main(int argc, char *argv[])
 {
-    class server_application: public application
+    try
     {
-    public:
-        using application::application;
-
-        void initialize_argument_parser(argument_parser &parser) override
-        {
-            application::initialize_argument_parser(parser);
-        }
-
-        int main(const variables_map &variables) override
-        {
-            return 0;
-        }
-    };
-}
-
-int main(int argc, char **argv)
-{
-    server_application app(argc, argv);
-    app.name("mon::server");
-    return app.exec();
+        cppcms::service srv(argc, argv);
+        boost::asio::io_service io_service;
+        boost::thread_group threads;
+        auto work = std::make_unique<boost::asio::io_service::work>(io_service);
+        threads.create_thread([&io_service] { io_service.run(); });
+        threads.create_thread([&io_service] { io_service.run(); });
+        threads.create_thread([&io_service] { io_service.run(); });
+        threads.create_thread([&io_service] { io_service.run(); });
+        const std::shared_ptr<mon::poller> poller = std::make_shared<mon::poller>(io_service);
+        srv.applications_pool().mount(
+            cppcms::applications_factory<mon::web::monitor>(poller)
+        );
+        srv.run();
+        work.reset();
+        poller->close();
+        threads.join_all();
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 }
