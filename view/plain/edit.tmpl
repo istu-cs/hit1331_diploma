@@ -5,13 +5,10 @@
             <% gt "edit" %>
         <% end template %>
         <% template form() %>
-            <h3><% gt "Edit" %></h3>
+            <h3><% gt "Edit agent" %></h3>
             <form method="post" action="">
-                <!--% form as_p form %-->
+                <% form as_p agent %>
             </form>
-        <% end template %>
-        <% template result() %>
-            TODO
         <% end template %>
     <% end view %>
 <% end skin %>

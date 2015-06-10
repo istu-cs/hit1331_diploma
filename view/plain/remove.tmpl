@@ -1,0 +1,28 @@
+<% c++ #include <mon/web/content/remove.hpp> %>
+<% skin plain %>
+    <% view edit uses mon::web::content::remove extends base %>
+        <% template subtitle() %>
+            <% gt "remove" %>
+        <% end template %>
+        <% template main() %>
+            <h3>Removed agent</h3>
+            <% foreach ag in agents %>
+                <table border="1" cellspacing="0" cellpadding="10">
+                    <caption><% gt "Insertion results" %></caption>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target</th>
+                    </tr>
+                    <% item %>
+                        <tr>
+                            <td><%= ag.name %></td>
+                            <td><%= ag.target %></td>
+                        </tr>
+                    <% end %>
+                </table>
+            <% empty %>
+                Outdated page!
+            <% end %>
+        <% end template %>
+    <% end view %>
+<% end skin %>

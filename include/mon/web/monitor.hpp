@@ -18,7 +18,9 @@ public:
     void main(std::string url) override;
 
 private:
-    void edit();
+    void add();
+    void edit(std::string agent_id);
+    void remove(std::string agent_id);
     void show();
 
     const std::shared_ptr<mon::poller> m_poller;
