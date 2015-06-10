@@ -5,10 +5,41 @@
             <% gt "show" %>
         <% end template %>
         <% template form() %>
-            <h3><% gt "Show" %></h3>
-            <form method="post" action="">
-                <!--% form as_p form %-->
-            </form>
+            <h3><% gt "Agent statistics" %></h3>
+            <% foreach agent in agents %>
+                <table border="1" cellspacing="0" cellpadding="10">
+                    <caption><% gt "Insertion results" %></caption>
+                    <tr>
+                        <th>Name</th>
+                        <th>Target</th>
+                        <% foreach plugin in plugins %>
+                            <% item %>
+                                <th><%= plugin.name %></th>
+                            <% end %>
+                        <% end %>
+                    </tr>
+                    <% item %>
+                        <tr>
+                            <td><%= agent.name %></td>
+                            <td><%= agent.target %></td>
+                            <% foreach plugin in plugins %>
+                                <% item %>
+                                    <% if (agent.stats.at(plugin.id).status() != mon::CheckResponse::OK) %>
+                                        <td bgcolor="red">
+                                        <% c++ out() << agent.stats.at(plugin.id).status() << ": "; %>
+                                    <% else %>
+                                        <td>
+                                    <% end %>
+                                    >
+                                        <% c++ out() << agent.stats.at(plugin.id).message(); %>
+                                    </td>
+                                <% end %>
+                            <% end %>
+                        </tr>
+                    <% end %>
+            <% empty %>
+                <b>No agents found!</b>
+            <% end %>
         <% end template %>
     <% end view %>
 <% end skin %>
