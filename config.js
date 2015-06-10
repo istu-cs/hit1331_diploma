@@ -16,5 +16,8 @@
     "views" : {
         "paths": [ "build" ],
         "skins": [ "plain" ]
+    },
+    "mon" : {
+        "db": "sqlite3:db=test.db"
     }
 }

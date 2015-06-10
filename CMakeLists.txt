@@ -38,7 +38,7 @@ bunsan_add_executable(${PROJECT_NAME}_server
 bunsan_use_target(${PROJECT_NAME}_server ${PROJECT_NAME})
 bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_web bunsan_web)
 bunsan_use_bunsan_package(${PROJECT_NAME}_server bunsan_protobuf bunsan_protobuf)
-target_link_libraries(${PROJECT_NAME}_server PUBLIC cppcms booster)
+target_link_libraries(${PROJECT_NAME}_server PUBLIC cppcms cppdb booster)
 
 if(BunsanWebBuiltin)
     BunsanWebLoad()
