@@ -4,6 +4,8 @@
 #include <grpc++/channel_arguments.h>
 #include <grpc++/create_channel.h>
 
+#include <bunsan/logging/trivial.hpp>
+
 namespace mon {
 
 poller::poller(boost::asio::io_service &io_service):
@@ -14,7 +16,7 @@ poller::poller(boost::asio::io_service &io_service):
 }
 
 poller::~poller() {
-    close();
+    if (m_alive) close();
 }
 
 void poller::close() {
@@ -29,6 +31,7 @@ void poller::add_agent(const AgentConfiguration &agent_) {
     m_agent_worker.post([this, new_agent] {
         m_agents[new_agent->configuration.id()] = new_agent;
     });
+    BUNSAN_LOG_INFO << "Added agent id = " << agent_.id();
 }
 
 void poller::remove_agent(const std::string &agent_id) {
@@ -36,6 +39,7 @@ void poller::remove_agent(const std::string &agent_id) {
     m_agent_worker.post([this, id] {
         m_agents.erase(id);
     });
+    BUNSAN_LOG_INFO << "Removed agent id = " << agent_id;
 }
 
 void poller::add_query(const Query &query_) {
@@ -46,6 +50,8 @@ void poller::add_query(const Query &query_) {
         q.next_call = std::chrono::system_clock::now();
         m_queries[q.configuration.id()] = q;
     });
+    BUNSAN_LOG_INFO << "Added query id = " << query_.id()
+                    << " for agent id = " << query_.request().agent();
 }
 
 void poller::remove_query(const std::string query_id) {
@@ -53,6 +59,7 @@ void poller::remove_query(const std::string query_id) {
     m_agent_worker.post([this, id] {
         m_queries.erase(id);
     });
+    BUNSAN_LOG_INFO << "Removed query id = " << query_id;
 }
 
 void poller::work() {

@@ -27,6 +27,7 @@ bunsan_add_protobuf_cxx_library(
 )
 
 bunsan_add_library(${PROJECT_NAME}
+    src/lib/engine.cpp
     src/lib/poller.cpp
     src/web/monitor.cpp
 )

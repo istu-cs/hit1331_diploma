@@ -1,5 +1,8 @@
+#include <mon/engine.hpp>
 #include <mon/poller.hpp>
 #include <mon/web/monitor.hpp>
+
+#include <bunsan/shared_cast.hpp>
 
 #include <cppcms/applications_pool.h>
 #include <cppcms/service.h>
@@ -31,9 +34,14 @@ int main(int argc, char *argv[])
         threads.create_thread([&io_service] { io_service.run(); });
         threads.create_thread([&io_service] { io_service.run(); });
         threads.create_thread([&io_service] { io_service.run(); });
-        const std::shared_ptr<mon::poller> poller = std::make_shared<mon::poller>(io_service);
+        const auto poller = std::make_shared<mon::poller>(io_service);
+        const auto engine = std::make_shared<mon::engine>(poller, db_pool);
+        const auto bengine = bunsan::shared_cast(engine);
+        poller->on_check(mon::poller::check_response_signal::slot_type(
+            &mon::engine::handle_response, engine.get(), _1
+        ).track(bengine));
         srv.applications_pool().mount(
-            cppcms::applications_factory<mon::web::monitor>(poller, db_pool)
+            cppcms::applications_factory<mon::web::monitor>(engine)
         );
         srv.run();
         work.reset();

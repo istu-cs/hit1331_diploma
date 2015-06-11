@@ -9,19 +9,17 @@
 #include <cppdb/frontend.h>
 #include <cppdb/backend.h>
 
+#include <boost/lexical_cast.hpp>
+
 #include <map>
 
 namespace mon {
 namespace web {
 
 monitor::monitor(cppcms::service &srv,
-                 const std::shared_ptr<mon::poller> &poller,
-                 const cppdb::pool::pointer &db_pool):
+                 const std::shared_ptr<mon::engine> &engine):
         cppcms::application(srv),
-        m_poller(poller),
-        m_db_pool(db_pool) {
-    init_db();
-
+        m_engine(engine) {
     dispatcher().assign("/add", &monitor::add, this);
     mapper().assign("add", "/add");
 
@@ -37,33 +35,24 @@ monitor::monitor(cppcms::service &srv,
     mapper().root("/monitor");
 }
 
-void monitor::init_db() {
-    cppdb::session sql(m_db_pool->open());
-    sql << "CREATE TABLE IF NOT EXISTS agents ("
-           "    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-           "    name TEXT NOT NULL,"
-           "    target TEXT NOT NULL"
-           ")" << cppdb::exec;
-    sql << "CREATE TABLE IF NOT EXISTS results ("
-           "    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,"
-           "    agent_id INTEGER NOT NULL REFERENCES agents,"
-           "    query TEXT NOT NULL,"
-           "    status INTEGER NOT NULL,"
-           "    message TEXT NOT NULL"
-           ")" << cppdb::exec;
-}
-
 void monitor::add() {
-    cppdb::session sql(m_db_pool->open());
+    cppdb::session sql(m_engine->db()->open());
     content::edit data;
     if (request().request_method() == "POST") {
         data.agent.load(context());
         if (data.agent.validate()) {
-            sql << "INSERT INTO agents (name, target)"
-                   "VALUES(?, ?)"
-                << data.agent.name.value()
-                << data.agent.target.value()
-                << cppdb::exec;
+            cppdb::statement stat =
+                sql << "INSERT INTO agents (name, target)"
+                       "VALUES(?, ?)"
+                    << data.agent.name.value()
+                    << data.agent.target.value();
+            stat.exec();
+            const std::string agent_id =
+                boost::lexical_cast<std::string>(stat.last_insert_id());
+            AgentConfiguration agent;
+            agent.set_id(agent_id);
+            agent.mutable_connection()->set_target(data.agent.target.value());
+            m_engine->add_agent(agent);
         }
         response().set_redirect_header(url("show"));
     } else {
@@ -72,7 +61,7 @@ void monitor::add() {
 }
 
 void monitor::edit(const std::string agent_id) {
-    cppdb::session sql(m_db_pool->open());
+    cppdb::session sql(m_engine->db()->open());
     content::edit data;
     if (request().request_method() == "POST") {
         data.agent.load(context());
@@ -108,7 +97,7 @@ void monitor::edit(const std::string agent_id) {
 }
 
 void monitor::remove() {
-    cppdb::session sql(m_db_pool->open());
+    cppdb::session sql(m_engine->db()->open());
     if (request().request_method() == "POST") {
         const std::string agent_id = request().post("agent_id");
         if (!agent_id.empty()) {
@@ -116,6 +105,7 @@ void monitor::remove() {
                    "WHERE id = ?"
                 << agent_id
                 << cppdb::exec;
+            m_engine->remove_agent(agent_id);
             response().status(cppcms::http::response::ok);
         } else {
             response().status(cppcms::http::response::not_found);
@@ -134,7 +124,7 @@ void monitor::remove() {
 }
 
 void monitor::show() {
-    cppdb::session sql(m_db_pool->open());
+    cppdb::session sql(m_engine->db()->open());
     content::show data;
     data.plugins = {
         { "cpu", "cpu load" },
