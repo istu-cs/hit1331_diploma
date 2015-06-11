@@ -110,7 +110,6 @@ void monitor::edit(const std::string agent_id) {
 void monitor::remove() {
     cppdb::session sql(m_db_pool->open());
     if (request().request_method() == "POST") {
-
         const std::string agent_id = request().post("agent_id");
         if (!agent_id.empty()) {
             sql << "DELETE FROM agents "
