@@ -22,17 +22,15 @@
                         <tr>
                             <td><%= agent.name %></td>
                             <td><%= agent.target %></td>
-                            <% foreach plugin in plugins %>
+                            <% foreach stat in agent.stats %>
                                 <% item %>
-                                    <% if (agent.stats.at(plugin.id).status() != mon::CheckResponse::OK) %>
+                                    <% if (stat.status() != mon::CheckResponse::OK) %>
                                         <td bgcolor="red">
-                                        <% c++ out() << agent.stats.at(plugin.id).status() << ": "; %>
+                                        <% c++ out() << stat.status() << ": "; %>
                                     <% else %>
                                         <td>
                                     <% end %>
-                                    >
-                                        <% c++ out() << agent.stats.at(plugin.id).message(); %>
-                                    </td>
+                                    <% c++ out() << stat.message(); %>
                                 <% end %>
                             <% end %>
                         </tr>

@@ -131,6 +131,10 @@ void monitor::show() {
         { "disk", "disk load" },
         { "firebird", "firebird presence" },
     };
+    std::unordered_map<std::string, std::size_t> query2id;
+    for (std::size_t i = 0; i < data.plugins.size(); ++i) {
+        query2id[data.plugins[i].id] = i;
+    }
     std::map<std::int64_t, content::show::agent> agents;
     cppdb::result result =
         sql << "SELECT id, name, target "
@@ -142,6 +146,7 @@ void monitor::show() {
         result >> id >> name >> target;
         agents[id].name = name;
         agents[id].target = target;
+        agents[id].stats.resize(data.plugins.size());
     }
     result =
         sql << "SELECT id, agent_id, query, status, message "
@@ -154,9 +159,11 @@ void monitor::show() {
         std::string message;
         result >> id >> agent_id >> query >> status >> message;
         auto ag = agents.find(agent_id);
-        if (ag == agents.end()) continue;
-        ag->second.stats[query].set_status(CheckResponse::Status(status));
-        ag->second.stats[query].set_message(message);
+        if (ag == agents.end()) continue;  // skip unknown agent
+        const auto query_id = query2id.find(query);
+        if (query_id == query2id.end()) continue;  // skip unknown query
+        ag->second.stats[query_id->second].set_status(CheckResponse::Status(status));
+        ag->second.stats[query_id->second].set_message(message);
     }
     render("show", data);
 }

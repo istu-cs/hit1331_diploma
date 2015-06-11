@@ -15,7 +15,7 @@ struct show : base_form {
     struct agent {
         std::string name;
         std::string target;
-        std::unordered_map<std::string, CheckResponse> stats;
+        std::vector<CheckResponse> stats;
     };
     struct plugin {
         std::string id;
