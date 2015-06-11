@@ -4,6 +4,10 @@
         <% template subtitle() %>
             <% gt "show" %>
         <% end template %>
+        <% template scripts() %>
+            <% include base_form::scripts() %>
+            <script src="/static/plain/remove_agent.js" type="text/javascript"></script>
+        <% end template %>
         <% template form() %>
             <h3><% gt "Agent statistics" %></h3>
             <% foreach agent in agents %>
@@ -19,8 +23,11 @@
                         <% end %>
                     </tr>
                     <% item %>
-                        <tr>
-                            <td><%= agent.name %></td>
+                        <tr id="agent_<%= agent.id %>">
+                            <td><%= agent.name %>
+                                <button title="Remove agent"
+                                        onclick="remove_agent(<%= agent.id %>)">x</button>
+                            </td>
                             <td><%= agent.target %></td>
                             <% foreach stat in agent.stats %>
                                 <% item %>

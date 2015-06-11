@@ -13,6 +13,7 @@ namespace content {
 
 struct show : base_form {
     struct agent {
+        std::uint64_t id;
         std::string name;
         std::string target;
         std::vector<CheckResponse> stats;

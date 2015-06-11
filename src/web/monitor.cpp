@@ -2,7 +2,6 @@
 
 #include <mon/web/content/edit.hpp>
 #include <mon/web/content/error.hpp>
-#include <mon/web/content/remove.hpp>
 #include <mon/web/content/show.hpp>
 
 #include <cppcms/url_dispatcher.h>
@@ -111,8 +110,21 @@ void monitor::edit(const std::string agent_id) {
 void monitor::remove() {
     cppdb::session sql(m_db_pool->open());
     if (request().request_method() == "POST") {
-        content::remove data;
-        render("remove", data);
+
+        const std::string agent_id = request().post("agent_id");
+        if (!agent_id.empty()) {
+            sql << "DELETE FROM agents "
+                   "WHERE id = ?"
+                << agent_id
+                << cppdb::exec;
+            response().status(cppcms::http::response::ok);
+        } else {
+            response().status(cppcms::http::response::not_found);
+            content::error error;
+            error.brief = translate("Invalid request");
+            error.message = translate("agent_id is not set");
+            render("error", error);
+        }
     } else {
         response().status(cppcms::http::response::method_not_allowed);
         content::error error;
@@ -144,6 +156,7 @@ void monitor::show() {
         std::string name;
         std::string target;
         result >> id >> name >> target;
+        agents[id].id = id;
         agents[id].name = name;
         agents[id].target = target;
         agents[id].stats.resize(data.plugins.size());
