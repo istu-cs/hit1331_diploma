@@ -33,7 +33,7 @@
                                 <% item %>
                                     <% if (stat.status() != mon::CheckResponse::OK) %>
                                         <td bgcolor="red">
-                                        <% c++ out() << stat.status() << ": "; %>
+                                        <% c++ out() << mon::CheckResponse::Status_Name(stat.status()) << ": "; %>
                                     <% else %>
                                         <td>
                                     <% end %>

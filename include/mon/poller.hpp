@@ -28,7 +28,7 @@ public:
     void add_agent(const AgentConfiguration &agent);
     void remove_agent(const std::string &agent_id);
 
-    void add_query(const Query &query);
+    void add_query(const CheckRequest &query);
     void remove_query(const std::string query_id);
 
     connection on_check(const check_response_signal::slot_type &slot) {
@@ -46,7 +46,7 @@ private:
     };
 
     struct query {
-        Query configuration;
+        CheckRequest configuration;
         std::chrono::system_clock::time_point next_call;
         std::shared_ptr<agent> agent_ref;
     };

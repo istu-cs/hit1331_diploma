@@ -27,6 +27,7 @@ private:
     void init_db();
     void init_poller();
     void init_agent(const std::string &agent_id);
+    void init_result(const std::string &agent_id, const std::string &query);
 
     const std::shared_ptr<mon::poller> m_poller;
     const cppdb::pool::pointer m_db_pool;

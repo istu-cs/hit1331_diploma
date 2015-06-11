@@ -12,8 +12,10 @@ message Plugin {
 }
 
 message CheckRequest {
-    string agent = 1;
-    Plugin plugin = 2;
+    string id = 1;
+    string agent = 2;
+    Plugin plugin = 3;
+    uint64 interval = 4;
 }
 
 message CheckResponse {
@@ -32,12 +34,6 @@ message CheckResponse {
     CheckRequest request = 1;
     Status status = 2;
     string message = 3;
-}
-
-message Query {
-    string id = 1;
-    CheckRequest request = 2;
-    uint64 interval = 3;
 }
 
 message AgentConfiguration {

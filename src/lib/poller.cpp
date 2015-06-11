@@ -30,28 +30,28 @@ void poller::add_agent(const AgentConfiguration &agent_) {
     new_agent->configuration = agent_;
     m_agent_worker.post([this, new_agent] {
         m_agents[new_agent->configuration.id()] = new_agent;
+        BUNSAN_LOG_INFO << "Added agent id = " << new_agent->configuration.id();
     });
-    BUNSAN_LOG_INFO << "Added agent id = " << agent_.id();
 }
 
 void poller::remove_agent(const std::string &agent_id) {
     const std::string id = agent_id;
     m_agent_worker.post([this, id] {
         m_agents.erase(id);
+        BUNSAN_LOG_INFO << "Removed agent id = " << id;
     });
-    BUNSAN_LOG_INFO << "Removed agent id = " << agent_id;
 }
 
-void poller::add_query(const Query &query_) {
-    const Query configuration = query_;
+void poller::add_query(const CheckRequest &query_) {
+    const CheckRequest configuration = query_;
     m_agent_worker.post([this, configuration] {
         query q;
         q.configuration = configuration;
         q.next_call = std::chrono::system_clock::now();
         m_queries[q.configuration.id()] = q;
+        BUNSAN_LOG_INFO << "Added query id = " << configuration.id()
+                        << " for agent id = " << configuration.agent();
     });
-    BUNSAN_LOG_INFO << "Added query id = " << query_.id()
-                    << " for agent id = " << query_.request().agent();
 }
 
 void poller::remove_query(const std::string query_id) {
@@ -81,7 +81,7 @@ void poller::work() {
     const auto now = std::chrono::system_clock::now();
     for (auto &q_ : m_queries) {
         query &q = q_.second;
-        const auto ag = m_agents.find(q.configuration.request().agent());
+        const auto ag = m_agents.find(q.configuration.agent());
         if (ag == m_agents.end()) continue;  // skip unmatched queries
         if (q.next_call > now) continue;  // too early
         const std::chrono::system_clock::duration interval =
@@ -113,7 +113,7 @@ void poller::perform_query(const query &q) {
     CheckResponse response;
     const grpc::Status status = q.agent_ref->stub->Check(
         &context,
-        q.configuration.request(),
+        q.configuration,
         &response
     );
     switch (status.code()) {
@@ -129,7 +129,13 @@ void poller::perform_query(const query &q) {
         response.set_message(status.details());
     }
     m_io_service.post([this, response] {
-        m_check_response_signal(response);
+        try {
+            m_check_response_signal(response);
+        } catch (std::exception &e) {
+            BUNSAN_LOG_ERROR << "on_check() report for response "
+                             << response.ShortDebugString()
+                             << " got error: " << e.what();
+        }
     });
 }
 

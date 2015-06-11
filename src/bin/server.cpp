@@ -11,6 +11,7 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <boost/scope_exit.hpp>
 #include <boost/thread.hpp>
 
 #include <iostream>
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
         );
         boost::asio::io_service io_service;
         boost::thread_group threads;
+        BOOST_SCOPE_EXIT_ALL(&) { threads.join_all(); };
         auto work = std::make_unique<boost::asio::io_service::work>(io_service);
         threads.create_thread([&io_service] { io_service.run(); });
         threads.create_thread([&io_service] { io_service.run(); });
@@ -45,12 +47,10 @@ int main(int argc, char *argv[])
         );
         srv.run();
         work.reset();
-        poller->close();
-        threads.join_all();
     }
     catch (std::exception &e)
     {
-        std::cerr << e.what() << std::endl;
+        std::cerr << "Failed with error: " << e.what() << std::endl;
         return 1;
     }
 }
