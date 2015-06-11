@@ -165,6 +165,9 @@ void monitor::show() {
         ag->second.stats[query_id->second].set_status(CheckResponse::Status(status));
         ag->second.stats[query_id->second].set_message(message);
     }
+    for (auto &id_agent : agents) {
+        data.agents.push_back(std::move(id_agent.second));
+    }
     render("show", data);
 }
 
