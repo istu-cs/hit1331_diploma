@@ -24,7 +24,7 @@
                     </tr>
                     <% item %>
                         <tr id="agent_<%= agent.id %>">
-                            <td><%= agent.name %>
+                            <td><a href="<% url "edit" using agent.id %>"><%= agent.name %></a>
                                 <button title="Remove agent"
                                         onclick="remove_agent(<%= agent.id %>)">x</button>
                             </td>
