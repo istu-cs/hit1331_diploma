@@ -18,6 +18,6 @@
         "skins": [ "plain" ]
     },
     "mon" : {
-        "db": "sqlite3:db=test.db"
+        "db": "postgresql:host=localhost;user=hit1331;password=hit1331_pwd;dbname=hit1331_diploma"
     }
 }

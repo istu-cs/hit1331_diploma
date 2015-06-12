@@ -29,7 +29,8 @@ public:
     void remove_agent(const std::string &agent_id);
 
     void add_query(const CheckRequest &query);
-    void remove_query(const std::string query_id);
+    void remove_query(const std::string &agent_id,
+                      const std::string &query);
 
     connection on_check(const check_response_signal::slot_type &slot) {
         return m_check_response_signal.connect(slot);

@@ -48,18 +48,19 @@ void poller::add_query(const CheckRequest &query_) {
         query q;
         q.configuration = configuration;
         q.next_call = std::chrono::system_clock::now();
-        m_queries[q.configuration.id()] = q;
-        BUNSAN_LOG_INFO << "Added query id = " << configuration.id()
-                        << " for agent id = " << configuration.agent();
+        const std::string id = q.configuration.agent() + "#" + q.configuration.query();
+        m_queries[id] = q;
+        BUNSAN_LOG_INFO << "Added query id = " << id;
     });
 }
 
-void poller::remove_query(const std::string query_id) {
-    const std::string id = query_id;
+void poller::remove_query(const std::string &agent_id,
+                          const std::string &query) {
+    const auto id = agent_id + "#" + query;
     m_agent_worker.post([this, id] {
         m_queries.erase(id);
     });
-    BUNSAN_LOG_INFO << "Removed query id = " << query_id;
+    BUNSAN_LOG_INFO << "Removed query id = " << id;
 }
 
 void poller::work() {

@@ -48,7 +48,7 @@ void monitor::add() {
                     << data.agent.target.value();
             stat.exec();
             const std::string agent_id =
-                boost::lexical_cast<std::string>(stat.last_insert_id());
+                boost::lexical_cast<std::string>(stat.sequence_last("agents_id_seq"));
             AgentConfiguration agent;
             agent.set_id(agent_id);
             agent.mutable_connection()->set_target(data.agent.target.value());

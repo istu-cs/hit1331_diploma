@@ -12,8 +12,8 @@ message Plugin {
 }
 
 message CheckRequest {
-    string id = 1;
-    string agent = 2;
+    string agent = 1;
+    string query = 2;
     Plugin plugin = 3;
     uint64 interval = 4;
 }
