@@ -69,7 +69,10 @@ void poller::work() {
 
     for (auto &ag_ : m_agents) {
         agent &ag = *ag_.second;
+        BUNSAN_LOG_DEBUG << "Found agent id = " << ag.configuration.id();
         if (!ag.channel) {
+            BUNSAN_LOG_INFO << "Connection to agent at "
+                            << ag.configuration.connection().target();
             ag.channel = grpc::CreateChannel(ag.configuration.connection().target(),
                                              grpc::InsecureCredentials(),
                                              grpc::ChannelArguments());
@@ -93,6 +96,8 @@ void poller::work() {
             q.next_call = now + interval;
         }
         q.agent_ref = ag->second;
+        BUNSAN_LOG_DEBUG << "Posted query id = " << q.configuration.query()
+                         << " for agent id = " << q.configuration.agent();
         m_query_worker.post(std::bind(&poller::perform_query, this, q));
     }
 
@@ -109,7 +114,7 @@ void poller::perform_query(const query &q) {
     grpc::ClientContext context;
     context.set_deadline(
         // FIXME hardcoded timeout
-        std::chrono::system_clock::now() + std::chrono::minutes(5)
+        std::chrono::system_clock::now() + std::chrono::seconds(10)
     );
     CheckResponse response;
     const grpc::Status status = q.agent_ref->stub->Check(
@@ -117,6 +122,7 @@ void poller::perform_query(const query &q) {
         q.configuration,
         &response
     );
+    *response.mutable_request() = q.configuration;
     switch (status.code()) {
     case grpc::OK:
         // no modifications required

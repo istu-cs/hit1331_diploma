@@ -127,6 +127,7 @@ void engine::set_result(const CheckResponse &response) {
 }
 
 void engine::add_agent(const AgentConfiguration &agent) {
+    m_poller->remove_agent(agent.id());
     m_poller->add_agent(agent);
     init_agent(agent.id());
 }
