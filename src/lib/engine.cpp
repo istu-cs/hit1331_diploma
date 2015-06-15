@@ -36,9 +36,9 @@ void engine::init_db() {
            "    CONSTRAINT results_pk PRIMARY KEY (agent_id, query)"
            ")" << cppdb::exec;
     sql << "CREATE OR REPLACE FUNCTION upsert_result(agent_id_ INTEGER, "
-                                                    "query_ TEXT, "
-                                                    "status_ INTEGER, "
-                                                    "message_ TEXT) RETURNS void as $$\n"
+           "                                         query_ TEXT, "
+           "                                         status_ INTEGER, "
+           "                                         message_ TEXT) RETURNS void as $$\n"
            "BEGIN\n"
            "    UPDATE results set status = status_, message = message_ "
            "        WHERE agent_id = agent_id_ AND query = query_;\n"
